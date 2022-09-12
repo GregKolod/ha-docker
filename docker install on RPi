@@ -1,0 +1,41 @@
+sudo apt-get update
+
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+# Add Dockers official GPG key to the KeyRing
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+Set up the file repository for the Stable version of Docker (You can run a beta or experimental one if you want, but I prefer to use the stable versions)
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+# Finally, install the Docker engine using these two commands
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+# Installing Docker Compose
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+Now we set the permissions on the downloaded files to allow us to run them.
+
+sudo chmod +x /usr/local/bin/docker-compose
+#And we’re done! Docker Compose is now installed and we can test this by running it and having it output the version.
+
+docker-compose --version
+
+#Installing Portainer
+
+cd /opt
+#Then we will use the Nano text editor to create a new file called docker-compose.yaml
+
+sudo nano docker-compose.yaml
+
+
+
+docker-compose up -d
