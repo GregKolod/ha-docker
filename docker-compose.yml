@@ -6,10 +6,11 @@ services:
     volumes:
       - /opt/homeassistant/config:/config
       - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
     restart: unless-stopped
     privileged: true
     ports:
-      - "20162:8123"
+      - "8123:8123"
       
   #VSCode
   vscode:
