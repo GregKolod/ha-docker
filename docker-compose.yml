@@ -11,6 +11,53 @@ services:
     privileged: true
     ports:
       - "8123:8123"
+ 
+ #Mosquitto
+  mosquitto:
+    container_name: mqtt
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      # This port is for Webhooks
+      - "9001:9001"
+    volumes:
+      - /opt/mosquitto/config:/mosquitto/config
+      - /opt/mosquitto/data:/mosquitto/data
+      - /opt/mosquitto/log:/mosquitto/log
+      
+# do termostatów      
+      
+  bt-mqtt-gateway:
+    image: zewelor/bt-mqtt-gateway
+    container_name: bt-mqtt-gateway
+    privileged: true
+    restart: always
+    volumes:
+      - /opt/bt-mqtt-gateway/config.yaml:/application/config.yaml
+      
+    command: /bin/bash -c "hciconfig hci0 reset"   
+
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host 
+    
+    
+    
+  #VSCode
+  vscode:
+    container_name: vscode
+    image: codercom/code-server
+    volumes:
+      # Set <project dir> to the directory you want to open in VS Code.
+      - /opt/vscode/config:/config
+      # <vs code config> should point to a local dir where vs code stores its data.
+      - /opt:/home/coder/.local/share/code-server
+    ports:
+      - "8443:8080"
+    command: code-server --auth none --disable-telemetry /config
+    restart: unless-stopped 
+
       
   #VSCode
   vscode:
@@ -26,20 +73,8 @@ services:
     command: code-server --auth none --disable-telemetry /config
     restart: unless-stopped
     
-    
-#Mosquitto
-  mosquitto:
-    container_name: mqtt
-    image: eclipse-mosquitto
-    ports:
-      - "1883:1883"
-      # This port is for Webhooks
-      - "9001:9001"
-    volumes:
-      - /opt/mosquitto/config:/mosquitto/config
-      - /opt/mosquitto/data:/mosquitto/data
-      - /opt/mosquitto/log:/mosquitto/log
-      
+   
+
 #ESPHome 
   esphome:
     container_name: esphome
@@ -75,18 +110,7 @@ services:
     restart: always
     privileged: true
     
-  bt-mqtt-gateway:
-    image: zewelor/bt-mqtt-gateway
-    container_name: bt-mqtt-gateway
-    restart: always
-    volumes:
-      - /opt/bt-mqtt-gateway/config.yaml:/application/config.yaml
-   
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    network_mode: host    
-
+ 
     
   rtl_433_autodiscovery:
     container_name: rtl_433_autodiscovery
