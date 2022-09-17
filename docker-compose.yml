@@ -14,7 +14,7 @@ services:
  
  #Mosquitto
   mosquitto:
-    container_name: mqtt
+    container_name: mosquitto
     image: eclipse-mosquitto
     ports:
       - "1883:1883"
@@ -56,24 +56,7 @@ services:
     ports:
       - "8443:8080"
     command: code-server --auth none --disable-telemetry /config
-    restart: unless-stopped 
-
-      
-  #VSCode
-  vscode:
-    container_name: vscode
-    image: codercom/code-server
-    volumes:
-      # Set <project dir> to the directory you want to open in VS Code.
-      - /opt/vscode/config:/config
-      # <vs code config> should point to a local dir where vs code stores its data.
-      - /opt:/home/coder/.local/share/code-server
-    ports:
-      - "8443:8080"
-    command: code-server --auth none --disable-telemetry /config
-    restart: unless-stopped
-    
-   
+    restart: unless-stopped      
 
 #ESPHome 
   esphome:
@@ -110,12 +93,27 @@ services:
     restart: always
     privileged: true
     
- 
-    
-  rtl_433_autodiscovery:
-    container_name: rtl_433_autodiscovery
-    image: ghcr.io/pbkhrv/rtl_433-hass-addons-rtl_433_mqtt_autodiscovery-amd64
+  rtl433:
+    build:
+      context: /opt/rtl2hassio
+   
+    container_name: rtl433
+    devices:
+      - /dev/bus/usb
     environment:
-      - MQTT_HOST= 
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+      MQTT_TOPIC: "RTL_433"
+      MQTT_USERNAME: ""
+      MQTT_PASSWORD: ""
+      MQTT_RETAIN: "true"
+      PROTOCOL: "-R 12 -R 19 -R 30 -R 35"
+      DISCOVERY_PREFIX: "homeassistant"
+      DISCOVERY_INTERVAL: 30
+      BLACK_LIST: ""
+    depends_on:
+      - mosquitto
+    links:
+      - mosquitto   
 
 
